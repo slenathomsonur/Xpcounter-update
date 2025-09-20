@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XP Counter with Custom Input</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 900px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: #444;
+            margin: 15px 0;
+        }
+        
+        h3 {
+            color: #555;
+            margin: 10px 0;
+        }
+        
+        .screen {
+            display: none;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        input, button, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        
+        input, select, textarea {
+            background-color: #f9f9f9;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        button {
+            background: linear-gradient(to right, #4776E6, #8E54E9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .profile-list {
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .profile-item {
+            background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .profile-info {
+            text-align: left;
+            flex: 1;
+        }
+        
+        .profile-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .profile-xp {
+            color: #4776E6;
+            font-size: 16px;
+        }
+        
+        .profile-level {
+            color: #8E54E9;
+            font-size: 14px;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .profile-actions button {
+            width: auto;
+            margin-left: 5px;
+            padding: 8px 12px;
+        }
+        
+        .xp-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4776E6;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f0f5ff;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .level-display {
+            font-size: 20px;
+            font-weight: bold;
+            color: #8E54E9;
+            margin: 15px 0;
+            padding: 12px;
+            background-color: #f7f0ff;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: linear-gradient(to right, #4776E6, #8E54E9);
+            border-radius: 10px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .xp-input-container {
+            margin: 20px 0;
+        }
+        
+        .quick-add-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .quick-add-buttons button {
+            padding: 10px;
+            font-size: 14px;
+        }
+        
+        .custom-xp-input {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .custom-amount {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+        }
+        
+        .custom-amount textarea {
+            grid-column: 1 / -1;
+        }
+        
+        .xp-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .xp-actions button {
+            width: 100%;
+        }
+        
+        .add-xp-btn {
+            background: linear-gradient(to right, #4776E6, #8E54E9);
+        }
+        
+        .remove-xp-btn {
+            background: linear-gradient(to right, #FF512F, #DD2476);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        .show {
+            opacity: 1;
+        }
+        
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4776E6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .nav button {
+            width: auto;
+            padding: 10px 20px;
+        }
+        
+        .logout-btn {
+            background: linear-gradient(to right, #FF512F, #DD2476);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4776E6;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .history-date {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .history-xp {
+            font-weight: bold;
+        }
+        
+        .history-xp.positive {
+            color: #4CAF50;
+        }
+        
+        .history-xp.negative {
+            color: #f44336;
+        }
+        
+        .history-category {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin: 20px 0;
+            border-bottom: 1px solid #ddd;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #4776E6;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .settings-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .settings-label {
+            font-weight: bold;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #4776E6;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .export-options button {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .quick-add-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .custom-amount {
+                grid-template-columns: 1fr;
+            }
+            
+            .xp-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav {
+                flex-direction: column;
+            }
+            
+            .tab-container {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-star"></i> XP Counter with Custom Input</h1>
+        
+        <!-- Main Menu Screen -->
+        <div id="mainMenu" class="screen active">
+            <button id="createProfileBtn"><i class="fas fa-plus"></i> Create New Profile</button>
+            <button id="manageProfilesBtn"><i class="fas fa-users-cog"></i> Manage Profiles</button>
+            <h3>Your Profiles</h3>
+            <div class="profile-list" id="mainMenuProfiles"></div>
+        </div>
+        
+        <!-- Create Profile Screen -->
+        <div id="createProfile" class="screen">
+            <h2><i class="fas fa-user-plus"></i> Create New Profile</h2>
+            <input type="text" id="profileName" placeholder="Enter profile name">
+            <input type="password" id="profilePin" placeholder="Create a 4-digit PIN" maxlength="4">
+            <button id="createProfileConfirm">Create Profile</button>
+            <button class="backBtn">Back</button>
+        </div>
+        
+        <!-- Login Screen -->
+        <div id="login" class="screen">
+            <h2><i class="fas fa-sign-in-alt"></i> Select Profile</h2>
+            <div class="profile-list" id="profileList"></div>
+            <button class="backBtn">Back</button>
+        </div>
+        
+        <!-- PIN Entry Screen -->
+        <div id="pinEntry" class="screen">
+            <h2><i class="fas fa-lock"></i> Enter PIN</h2>
+            <input type="password" id="pinInput" placeholder="Enter your 4-digit PIN" maxlength="4">
+            <button id="pinSubmit">Submit</button>
+            <button class="backBtn">Back</button>
+        </div>
+        
+        <!-- XP Counter Screen -->
+        <div id="xpCounter" class="screen">
+            <h2 id="currentProfileName">Profile Name</h2>
+            
+            <div class="tab-container">
+                <div class="tab active" data-tab="dashboard">Dashboard</div>
+                <div class="tab" data-tab="stats">Statistics</div>
+                <div class="tab" data-tab="history">History</div>
+                <div class="tab" data-tab="settings">Settings</div>
+            </div>
+            
+            <div class="tab-content active" id="dashboard">
+                <div class="level-display">
+                    Level: <span id="levelAmount">1</span>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="levelProgress">0%</div>
+                </div>
+                
+                <div class="xp-display">
+                    XP: <span id="xpAmount">0</span>
+                </div>
+                
+                <div class="xp-input-container">
+                    <h3>Quick Add XP</h3>
+                    <div class="quick-add-buttons">
+                        <button class="quick-add" data-amount="10">+10 XP</button>
+                        <button class="quick-add" data-amount="50">+50 XP</button>
+                        <button class="quick-add" data-amount="100">+100 XP</button>
+                        <button class="quick-add" data-amount="500">+500 XP</button>
+                    </div>
+                    
+                    <h3>Custom XP Amount</h3>
+                    <div class="custom-xp-input">
+                        <textarea id="customXpInput" placeholder="Enter custom XP amount or multiple values separated by commas, spaces, or new lines. Examples: 
+- 1000
+- 500, 200, 300
+- 100 50 25
+- 1000+500+200"></textarea>
+                        
+                        <select id="xpCategory">
+                            <option value="general">General</option>
+                            <option value="quests">Quests</option>
+                            <option value="skills">Skills</option>
+                            <option value="achievements">Achievements</option>
+                            <option value="penalty">Penalty</option>
+                        </select>
+                        
+                        <div class="custom-amount">
+                            <button id="addCustomXp" class="add-xp-btn"><i class="fas fa-plus"></i> Add Custom XP</button>
+                            <button id="removeCustomXp" class="remove-xp-btn"><i class="fas fa-minus"></i> Remove Custom XP</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="resetXp">Reset XP</button>
+            </div>
+            
+            <div class="tab-content" id="stats">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalXpGained">0</div>
+                        <div class="stat-label">Total XP Gained</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalXpLost">0</div>
+                        <div class="stat-label">Total XP Lost</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="daysActive">1</div>
+                        <div class="stat-label">Days Active</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="netXpChange">0</div>
+                        <div class="stat-label">Net XP Change</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="history">
+                <h3>XP History</h3>
+                <div class="history-list" id="xpHistoryList"></div>
+            </div>
+            
+            <div class="tab-content" id="settings">
+                <h3>Profile Settings</h3>
+                
+                <div class="settings-option">
+                    <div class="settings-label">Enable Notifications</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notificationsToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-option">
+                    <div class="settings-label">Show XP Animation</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="animationToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <h3>Data Management</h3>
+                <div class="export-options">
+                    <button id="exportData"><i class="fas fa-download"></i> Export Data</button>
+                    <button id="importData"><i class="fas fa-upload"></i> Import Data</button>
+                </div>
+                
+                <button id="changePin">Change PIN</button>
+                <button id="deleteProfile" class="logout-btn">Delete Profile</button>
+            </div>
+            
+            <div class="nav">
+                <button class="backBtn">Back to Profile</button>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+        
+        <!-- Manage Profiles Screen -->
+        <div id="manageProfiles" class="screen">
+            <h2><i class="fas fa-users-cog"></i> Manage Profiles</h2>
+            <div class="profile-list" id="manageProfileList"></div>
+            <button class="backBtn">Back</button>
+        </div>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+    
+    <input type="file" id="importFile" style="display: none;" accept=".json">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const screens = document.querySelectorAll('.screen');
+            const mainMenu = document.getElementById('mainMenu');
+            const createProfileScreen = document.getElementById('createProfile');
+            const loginScreen = document.getElementById('login');
+            const pinEntryScreen = document.getElementById('pinEntry');
+            const xpCounterScreen = document.getElementById('xpCounter');
+            const manageProfilesScreen = document.getElementById('manageProfiles');
+            
+            const mainMenuProfiles = document.getElementById('mainMenuProfiles');
+            const profileList = document.getElementById('profileList');
+            const manageProfileList = document.getElementById('manageProfileList');
+            
+            const profileNameInput = document.getElementById('profileName');
+            const profilePinInput = document.getElementById('profilePin');
+            const pinInput = document.getElementById('pinInput');
+            const customXpInput = document.getElementById('customXpInput');
+            
+            const currentProfileName = document.getElementById('currentProfileName');
+            const xpAmount = document.getElementById('xpAmount');
+            const levelAmount = document.getElementById('levelAmount');
+            const levelProgress = document.getElementById('levelProgress');
+            
+            const totalXpGained = document.getElementById('totalXpGained');
+            const totalXpLost = document.getElementById('totalXpLost');
+            const daysActive = document.getElementById('daysActive');
+            const netXpChange = document.getElementById('netXpChange');
+            
+            const xpHistoryList = document.getElementById('xpHistoryList');
+            
+            const notification = document.getElementById('notification');
+            const importFile = document.getElementById('importFile');
+            
+            // State variables
+            let profiles = JSON.parse(localStorage.getItem('xpProfiles')) || [];
+            let currentProfile = null;
+            
+            // Initialize the application
+            function init() {
+                showScreen(mainMenu);
+                renderMainMenuProfiles();
+                setupEventListeners();
+            }
+            
+            // Set up event listeners
+            function setupEventListeners() {
+                document.getElementById('createProfileBtn').addEventListener('click', function() {
+                    showScreen(createProfileScreen);
+                });
+                
+                document.getElementById('manageProfilesBtn').addEventListener('click', function() {
+                    renderManageProfiles();
+                    showScreen(manageProfilesScreen);
+                });
+                
+                document.getElementById('createProfileConfirm').addEventListener('click', createProfile);
+                
+                document.getElementById('pinSubmit').addEventListener('click', verifyPin);
+                
+                document.getElementById('addCustomXp').addEventListener('click', addCustomXp);
+                
+                document.getElementById('removeCustomXp').addEventListener('click', removeCustomXp);
+                
+                document.getElementById('resetXp').addEventListener('click', resetXp);
+                
+                document.getElementById('logoutBtn').addEventListener('click', logout);
+                
+                document.getElementById('exportData').addEventListener('click', exportData);
+                
+                document.getElementById('importData').addEventListener('click', () => importFile.click());
+                
+                importFile.addEventListener('change', importData);
+                
+                document.getElementById('changePin').addEventListener('click', changePin);
+                
+                document.getElementById('deleteProfile').addEventListener('click', deleteCurrentProfile);
+                
+                // Quick add buttons
+                document.querySelectorAll('.quick-add').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const amount = parseInt(this.getAttribute('data-amount'));
+                        if (!isNaN(amount) && amount > 0) {
+                            customXpInput.value = amount;
+                            addCustomXp();
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.backBtn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (this.parentElement.id === 'xpCounter') {
+                            showScreen(loginScreen);
+                        } else {
+                            showScreen(mainMenu);
+                        }
+                    });
+                });
+                
+                // Tab navigation
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        const tabName = this.getAttribute('data-tab');
+                        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                        this.classList.add('active');
+                        document.getElementById(tabName).classList.add('active');
+                        
+                        if (tabName === 'history') {
+                            renderXpHistory();
+                        }
+                    });
+                });
+                
+                // Allow pressing Enter in input fields
+                profilePinInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        createProfile();
+                    }
+                });
+                
+                pinInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        verifyPin();
+                    }
+                });
+                
+                customXpInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && e.ctrlKey) {
+                        addCustomXp();
+                    }
+                });
+            }
+            
+            // Show specific screen
+            function showScreen(screen) {
+                screens.forEach(s => s.classList.remove('active'));
+                screen.classList.add('active');
+            }
+            
+            // Render profiles on main menu
+            function renderMainMenuProfiles() {
+                mainMenuProfiles.innerHTML = '';
+                if (profiles.length === 0) {
+                    mainMenuProfiles.innerHTML = '<p>No profiles yet. Create your first profile!</p>';
+                    return;
+                }
+                
+                profiles.forEach(profile => {
+                    const profileElement = document.createElement('div');
+                    profileElement.className = 'profile-item';
+                    profileElement.innerHTML = `
+                        <div class="profile-info">
+                            <div class="profile-name">${profile.name}</div>
+                            <div class="profile-xp">XP: ${profile.xp}</div>
+                        </div>
+                        <div class="profile-actions">
+                            <button class="login-btn" data-id="${profile.id}">Login</button>
+                        </div>
+                    `;
+                    mainMenuProfiles.appendChild(profileElement);
+                });
+                
+                // Add event listeners to login buttons
+                document.querySelectorAll('.login-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const profileId = this.getAttribute('data-id');
+                        openLogin(profileId);
+                    });
+                });
+            }
+            
+            // Render profiles for management
+            function renderManageProfiles() {
+                manageProfileList.innerHTML = '';
+                if (profiles.length === 0) {
+                    manageProfileList.innerHTML = '<p>No profiles to manage.</p>';
+                    return;
+                }
+                
+                profiles.forEach(profile => {
+                    const profileElement = document.createElement('div');
+                    profileElement.className = 'profile-item';
+                    profileElement.innerHTML = `
+                        <div class="profile-info">
+                            <div class="profile-name">${profile.name}</div>
+                            <div class="profile-xp">XP: ${profile.xp}</div>
+                        </div>
+                        <div class="profile-actions">
+                            <button class="delete-btn" data-id="${profile.id}">Delete</button>
+                        </div>
+                    `;
+                    manageProfileList.appendChild(profileElement);
+                });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const profileId = this.getAttribute('data-id');
+                        deleteProfile(profileId);
+                    });
+                });
+            }
+            
+            // Render profiles for login
+            function renderLoginProfiles() {
+                profileList.innerHTML = '';
+                if (profiles.length === 0) {
+                    profileList.innerHTML = '<p>No profiles available.</p>';
+                    return;
+                }
+                
+                profiles.forEach(profile => {
+                    const profileElement = document.createElement('div');
+                    profileElement.className = 'profile-item';
+                    profileElement.innerHTML = `
+                        <div class="profile-info">
+                            <div class="profile-name">${profile.name}</div>
+                            <div class="profile-xp">XP: ${profile.xp}</div>
+                        </div>
+                        <div class="profile-actions">
+                            <button class="select-btn" data-id="${profile.id}">Select</button>
+                        </div>
+                    `;
+                    profileList.appendChild(profileElement);
+                });
+                
+                // Add event listeners to select buttons
+                document.querySelectorAll('.select-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const profileId = this.getAttribute('data-id');
+                        openPinEntry(profileId);
+                    });
+                });
+            }
+            
+            // Create a new profile
+            function createProfile() {
+                const name = profileNameInput.value.trim();
+                const pin = profilePinInput.value.trim();
+                
+                if (!name) {
+                    showNotification('Please enter a profile name', 'error');
+                    return;
+                }
+                
+                if (!pin || pin.length !== 4 || isNaN(pin)) {
+                    showNotification('PIN must be 4 digits', 'error');
+                    return;
+                }
+                
+                if (profiles.length >= 100) {
+                    showNotification('Maximum number of profiles (100) reached', 'error');
+                    return;
+                }
+                
+                const newProfile = {
+                    id: Date.now().toString(),
+                    name: name,
+                    pin: pin,
+                    xp: 0,
+                    stats: {
+                        totalXpGained: 0,
+                        totalXpLost: 0,
+                        daysActive: 1,
+                        lastActive: new Date().toISOString()
+                    },
+                    history: []
+                };
+                
+                profiles.push(newProfile);
+                saveProfiles();
+                
+                profileNameInput.value = '';
+                profilePinInput.value = '';
+                
+                showNotification('Profile created successfully!');
+                showScreen(mainMenu);
+                renderMainMenuProfiles();
+            }
+            
+            // Delete a profile
+            function deleteProfile(profileId) {
+                if (confirm('Are you sure you want to delete this profile?')) {
+                    profiles = profiles.filter(profile => profile.id !== profileId);
+                    saveProfiles();
+                    renderManageProfiles();
+                    renderMainMenuProfiles();
+                    showNotification('Profile deleted');
+                }
+            }
+            
+            // Delete current profile
+            function deleteCurrentProfile() {
+                if (confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
+                    profiles = profiles.filter(profile => profile.id !== currentProfile.id);
+                    saveProfiles();
+                    showNotification('Profile deleted');
+                    logout();
+                }
+            }
+            
+            // Open login for a specific profile
+            function openLogin(profileId) {
+                currentProfile = profiles.find(profile => profile.id === profileId);
+                if (currentProfile) {
+                    showScreen(pinEntryScreen);
+                }
+            }
+            
+            // Open PIN entry for a profile
+            function openPinEntry(profileId) {
+                currentProfile = profiles.find(profile => profile.id === profileId);
+                if (currentProfile) {
+                    showScreen(pinEntryScreen);
+                }
+            }
+            
+            // Verify PIN and login
+            function verifyPin() {
+                const enteredPin = pinInput.value.trim();
+                
+                if (enteredPin === currentProfile.pin) {
+                    // Update activity stats
+                    const today = new Date().toISOString().split('T')[0];
+                    const lastActive = new Date(currentProfile.stats.lastActive).toISOString().split('T')[0];
+                    
+                    if (today !== lastActive) {
+                        currentProfile.stats.daysActive++;
+                        currentProfile.stats.lastActive = new Date().toISOString();
+                    }
+                    
+                    pinInput.value = '';
+                    currentProfileName.textContent = currentProfile.name;
+                    updateXpDisplay();
+                    showScreen(xpCounterScreen);
+                    saveProfiles();
+                } else {
+                    showNotification('Incorrect PIN', 'error');
+                }
+            }
+            
+            // Parse custom XP input
+            function parseCustomXpInput() {
+                const input = customXpInput.value.trim();
+                if (!input) return 0;
+                
+                try {
+                    // Try to evaluate as mathematical expression
+                    if (/^[\d\s+*/\-.()]+$/.test(input)) {
+                        // Replace commas with dots for decimal numbers
+                        const sanitized = input.replace(/,/g, '.');
+                        // Use Function constructor for safe evaluation
+                        const result = Function(`return ${sanitized}`)();
+                        if (!isNaN(result)) return Math.round(result);
+                    }
+                    
+                    // If not a mathematical expression, try to parse as comma/space separated values
+                    const values = input.split(/[\s,\n]+/).filter(val => val !== '');
+                    if (values.length === 0) return 0;
+                    
+                    // Sum all values
+                    return values.reduce((sum, val) => {
+                        const num = parseFloat(val);
+                        return isNaN(num) ? sum : sum + num;
+                    }, 0);
+                } catch (e) {
+                    // If evaluation fails, try to parse as individual numbers
+                    const values = input.split(/[\s,\n]+/).filter(val => val !== '');
+                    return values.reduce((sum, val) => {
+                        const num = parseFloat(val);
+                        return isNaN(num) ? sum : sum + num;
+                    }, 0);
+                }
+            }
+            
+            // Add custom XP to current profile
+            function addCustomXp() {
+                const xpToAdd = parseCustomXpInput();
+                const category = document.getElementById('xpCategory').value;
+                
+                if (isNaN(xpToAdd) || xpToAdd <= 0) {
+                    showNotification('Please enter a valid XP amount', 'error');
+                    return;
+                }
+                
+                // Show loading animation
+                xpAmount.innerHTML = '<div class="loader"></div>';
+                
+                // Simulate loading process
+                setTimeout(() => {
+                    currentProfile.xp += xpToAdd;
+                    currentProfile.stats.totalXpGained += xpToAdd;
+                    
+                    // Add to history
+                    currentProfile.history.unshift({
+                        date: new Date().toISOString(),
+                        amount: xpToAdd,
+                        category: category,
+                        type: 'gain',
+                        note: `Custom input: ${customXpInput.value.substring(0, 20)}${customXpInput.value.length > 20 ? '...' : ''}`
+                    });
+                    
+                    // Keep only last 100 history items
+                    if (currentProfile.history.length > 100) {
+                        currentProfile.history = currentProfile.history.slice(0, 100);
+                    }
+                    
+                    customXpInput.value = '';
+                    
+                    updateXpDisplay();
+                    saveProfiles();
+                    
+                    showNotification(`Added ${xpToAdd} XP!`);
+                }, 1000);
+            }
+            
+            // Remove custom XP from current profile
+            function removeCustomXp() {
+                const xpToRemove = parseCustomXpInput();
+                const category = document.getElementById('xpCategory').value;
+                
+                if (isNaN(xpToRemove) || xpToRemove <= 0) {
+                    showNotification('Please enter a valid XP amount', 'error');
+                    return;
+                }
+                
+                if (xpToRemove > currentProfile.xp) {
+                    showNotification('Cannot remove more XP than current total', 'error');
+                    return;
+                }
+                
+                // Show loading animation
+                xpAmount.innerHTML = '<div class="loader"></div>';
+                
+                // Simulate loading process
+                setTimeout(() => {
+                    currentProfile.xp -= xpToRemove;
+                    currentProfile.stats.totalXpLost += xpToRemove;
+                    
+                    // Add to history
+                    currentProfile.history.unshift({
+                        date: new Date().toISOString(),
+                        amount: xpToRemove,
+                        category: category,
+                        type: 'loss',
+                        note: `Custom input: ${customXpInput.value.substring(0, 20)}${customXpInput.value.length > 20 ? '...' : ''}`
+                    });
+                    
+                    // Keep only last 100 history items
+                    if (currentProfile.history.length > 100) {
+                        currentProfile.history = currentProfile.history.slice(0, 100);
+                    }
+                    
+                    customXpInput.value = '';
+                    
+                    updateXpDisplay();
+                    saveProfiles();
+                    
+                    showNotification(`Removed ${xpToRemove} XP!`);
+                }, 1000);
+            }
+            
+            // Update XP display with level information
+            function updateXpDisplay() {
+                const level = Math.floor(currentProfile.xp / 100) + 1;
+                const xpInCurrentLevel = currentProfile.xp % 100;
+                const progress = Math.min(100, Math.floor((xpInCurrentLevel / 100) * 100));
+                
+                xpAmount.textContent = currentProfile.xp;
+                levelAmount.textContent = level;
+                levelProgress.style.width = `${progress}%`;
+                levelProgress.textContent = `${progress}%`;
+                
+                // Update stats
+                totalXpGained.textContent = currentProfile.stats.totalXpGained;
+                totalXpLost.textContent = currentProfile.stats.totalXpLost;
+                daysActive.textContent = currentProfile.stats.daysActive;
+                netXpChange.textContent = currentProfile.stats.totalXpGained - currentProfile.stats.totalXpLost;
+            }
+            
+            // Render XP history
+            function renderXpHistory() {
+                xpHistoryList.innerHTML = '';
+                
+                if (currentProfile.history.length === 0) {
+                    xpHistoryList.innerHTML = '<p>No XP history yet.</p>';
+                    return;
+                }
+                
+                currentProfile.history.forEach(entry => {
+                    const date = new Date(entry.date);
+                    const dateStr = date.toLocaleDateString();
+                    const timeStr = date.toLocaleTimeString();
+                    
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    let noteHtml = '';
+                    if (entry.note) {
+                        noteHtml = `<div class="history-category">${entry.category} - ${entry.note}</div>`;
+                    } else {
+                        noteHtml = `<div class="history-category">${entry.category}</div>`;
+                    }
+                    
+                    historyItem.innerHTML = `
+                        <div>
+                            <div class="history-date">${dateStr} ${timeStr}</div>
+                            ${noteHtml}
+                        </div>
+                        <div class="history-xp ${entry.type === 'gain' ? 'positive' : 'negative'}">
+                            ${entry.type === 'gain' ? '+' : '-'}${entry.amount} XP
+                        </div>
+                    `;
+                    xpHistoryList.appendChild(historyItem);
+                });
+            }
+            
+            // Reset XP for current profile
+            function resetXp() {
+                if (confirm('Are you sure you want to reset your XP to zero?')) {
+                    currentProfile.xp = 0;
+                    currentProfile.stats.totalXpGained = 0;
+                    currentProfile.stats.totalXpLost = 0;
+                    currentProfile.history = [];
+                    updateXpDisplay();
+                    saveProfiles();
+                    showNotification('XP reset to zero');
+                }
+            }
+            
+            // Change PIN
+            function changePin() {
+                const newPin = prompt('Enter a new 4-digit PIN:');
+                
+                if (!newPin || newPin.length !== 4 || isNaN(newPin)) {
+                    showNotification('PIN must be 4 digits', 'error');
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to change your PIN?')) {
+                    currentProfile.pin = newPin;
+                    saveProfiles();
+                    showNotification('PIN changed successfully');
+                }
+            }
+            
+            // Export data
+            function exportData() {
+                const dataStr = JSON.stringify(currentProfile, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = `${currentProfile.name}_xp_data.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                showNotification('Data exported successfully');
+            }
+            
+            // Import data
+            function importData(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        if (confirm('Are you sure you want to import this data? Your current data will be overwritten.')) {
+                            // Preserve ID and name
+                            const id = currentProfile.id;
+                            const name = currentProfile.name;
+                            const pin = currentProfile.pin;
+                            
+                            Object.assign(currentProfile, importedData);
+                            
+                            // Restore ID and name
+                            currentProfile.id = id;
+                            currentProfile.name = name;
+                            currentProfile.pin = pin;
+                            
+                            updateXpDisplay();
+                            saveProfiles();
+                            showNotification('Data imported successfully');
+                        }
+                    } catch (error) {
+                        showNotification('Error importing data: Invalid file format', 'error');
+                    }
+                };
+                reader.readAsText(file);
+                
+                // Reset file input
+                event.target.value = '';
+            }
+            
+            // Save profiles to localStorage
+            function saveProfiles() {
+                localStorage.setItem('xpProfiles', JSON.stringify(profiles));
+            }
+            
+            // Show notification
+            function showNotification(message, type = 'success') {
+                notification.textContent = message;
+                notification.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336';
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Logout function
+            function logout() {
+                currentProfile = null;
+                showScreen(mainMenu);
+            }
+            
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>
